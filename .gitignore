@@ -45,3 +45,4 @@ venv.bak/
 .mypy_cache/
 
 # extra md for docs
+*.MD

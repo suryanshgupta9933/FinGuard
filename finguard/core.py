@@ -1,26 +1,17 @@
 import functools
 import time
-from dataclasses import dataclass, field
 from typing import Any, Callable, Coroutine, Dict, List, Optional
 from .config import PolicyConfig
 from .pipeline import InputPipeline, OutputPipeline
 from .audit import AuditLogger
-
-@dataclass
-class GuardRequest:
-    prompt: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-@dataclass
-class GuardResult:
-    output: Optional[str]
-    is_safe: bool
-    violations: List[Dict[str, Any]]
-    action: str
-    latency_ms: float = 0.0
+from .schema import GuardRequest, GuardResult, ValidationResult
 
 class FinGuard:
     def __init__(self, policy: str | dict | PolicyConfig = "default"):
+        """
+        Initialize FinGuard with a policy.
+        Optimized for high-speed CPU inference (ONNX) by default.
+        """
         self.policy = PolicyConfig.load(policy)
         self.input_pipe = InputPipeline(self.policy)
         self.output_pipe = OutputPipeline(self.policy)
@@ -53,7 +44,6 @@ class FinGuard:
         async def wrapper(prompt: str, *args, **kwargs) -> str:
             req = GuardRequest(prompt=prompt, metadata=kwargs)
             
-            # Note: inside wrap, the llm_fn is called with prompt, args, kwargs
             async def bound_llm(p: str) -> str:
                 return await llm_fn(p, *args, **kwargs)
                 
