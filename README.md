@@ -10,6 +10,18 @@ FinGuard is a modular, plug-and-play guardrail framework built for fintech teams
 
 ## ⚡ Quick Start
 
+### Installation
+```bash
+# Recommended for standard use
+pip install finguard
+
+# REQUIRED for Optimized (ONNX) latency in environments like Google Colab
+pip install finguard onnxruntime optimum
+
+# (Optional but Recommended) Pre-fetch models to avoid first-run latency
+finguard-download
+```
+
 ```python
 from finguard import FinGuard
 
@@ -54,6 +66,14 @@ guard = FinGuard(policy="high_security")
 | `retail_banking` | Branch chatbots, net banking, UPI assistants | 2 |
 | `wealth_advisor` | Robo-advisors, portfolio managers (SEBI compliance) | 3 |
 | `high_security` | Fraud ops, compliance officers, internal audit tools | 3 |
+
+## [0.4.0] - 2026-03-28
+
+### Added
+- **Model Pre-fetching**: New `finguard-download` CLI command and `FinGuard.download_models()` method to pre-cache all ONNX models. This eliminates the first-run latency hit.
+- **CLI Utility**: Added `[project.scripts]` entry for easy environment setup.
+
+## [0.3.1] - 2026-03-28
 
 All policies ship with `injection.threshold: 1.0` — only absolute certainty triggers a block.
 
