@@ -1,69 +1,109 @@
-# FinGuard
+# FinGuard 🛡️
 
-> **An open-source, production-ready LLM safety orchestration layer built specifically for financial AI.**
+**The High-Performance LLM Safety Layer for Financial AI.**
 
-[![PyPI version](https://img.shields.io/pypi/v/finguard.svg)](https://pypi.org/project/finguard/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+FinGuard is a modular, enterprise-grade guardrail framework designed specifically for fintech and wealth management teams. It provides a secure bridge between powerful LLMs and the rigorous compliance requirements of the financial industry.
 
-## Why FinGuard?
+## 🚀 Why FinGuard?
 
-Generic guardrail tools fail in finance because of **domain-specific risks**: missing disclaimers, hallucinating returns, and non-compliant advice. 
+*   **Elite Performance**: Sub-400ms latency for full-stack audits (PII + Injection + Compliance) using optimized ONNX-CPU inference.
+*   **Modular Tiers**: Choose between **Turbo** (Regex/Instant), **Fast** (ONNX), and **Enterprise** (NER) safety paths.
+*   **Advice-Aware Compliance**: Intelligently detects financial advice vs. banking operations to minimize false positives.
+*   **PII Vault & Redaction**: Native support for stateful PII anonymization and response redaction.
+*   **Financial Specialists**: Built-in validators for Indian Financial Identifiers (PAN, Aadhaar, IFSC, VPA) and PMLA compliance.
 
-FinGuard provides the critical "orchestration glue"—wrapping enterprise-grade scanners (`llm-guard`, `presidio`) with **financial-specific validators** out-of-the-box.
+## 🚀 Launch Demo
 
-### The FinGuard Difference:
-1. **Indian-Specific PII Native Support**: PAN, Aadhaar, and Demat account detection directly in the inference pipeline.
-2. **Numerical Hallucination Control**: Cross-checks numbers against context to prevent confidently hallucinated percentages.
-3. **Compliance Phrase Detection**: Instantly flags SEBI/RBI violations (e.g. `"risk-free"`, `"guaranteed returns"`).
-4. **Optimized CPU Performance**: Native ONNX integration provides **sub-150ms** latency without a GPU.
+Test FinGuard instantly in your browser:
 
-## Quick Start (Plug-and-Play)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/protectai/finguard/blob/main/notebooks/FinGuard_Demo.ipynb)
 
-FinGuard is "Optimized by Default". No complex hardware configuration required.
+## 🎭 User Personas & Scenarios
 
-### 1. Installation
-```bash
-pip install finguard
+FinGuard adapts its safety posture based on the user's role. See the `examples/demo.py` for implementation.
+
+| Persona | Scenario | Safety Action |
+| :--- | :--- | :--- |
+| **Casual Banker** | Accidental Aadhaar leak in prompt | **BLOCK** (Fast-Path Regex) |
+| **Wealth Manager**| Investment advice without disclaimer | **BLOCK** (Compliance Check) |
+| **Compliance Officer**| Transfer ₹1,000,000 | **BLOCK** (PMLA Enforcement) |
+| **Security Analyst** | Prompt Injection attempt | **BLOCK** (ONNX AI-Fast) |
+
+## 🏗️ Performance Tiers
+
+| Tier | Latency (Avg) | Safety Modules | Use Case |
+| :--- | :--- | :--- | :--- |
+| **Tier 1 (Instant)** | < 10ms | Regex PII, PMLA, IFSC/PAN | Local, low-compute environments |
+| **Tier 2 (Fast AI)** | < 150ms | ONNX Prompt Injection, Topic Detection | Standard chatbot security |
+| **Tier 3 (Enterprise)**| < 400ms | Deep NER PII (Presidio), Hallucination | Production-grade financial apps |
+
+## 🛠️ Performance Features (v0.2.0)
+
+### 1. Granular Latency Tracking
+Every `GuardResult` now contains a `component_latencies` map. Identify bottlenecks instantly:
+```python
+res = await guard(prompt, llm_fn)
+print(res.component_latencies)
+# {'Anonymize': 176.0ms, 'PromptInjection': 35.6ms, 'BanTopics': 79.9ms, ...}
 ```
 
-### 2. Wrap your LLM
+### 2. Output PII Redaction
+Prevent the LLM from leaking sensitive customer data back to the user:
+```yaml
+# policy.yaml
+pii:
+  enabled: true
+  entities: ["EMAIL_ADDRESS", "PHONE_NUMBER"]
+  redact_output: true
+```
+
+### 3. Indian Financial "Fast Path"
+Ultra-fast detection for regional identifiers using the `IndianFinancialPII` scanner.
+- **PAN**: `ABCDE1234F`
+- **Aadhaar**: `1234 5678 9101`
+- **IFSC**: `SBIN0001234`
+- **VPA/UPI**: `user@okbank`
+
+## 📋 Policy Catalog
+
+FinGuard comes with a set of pre-configured, domain-specialized policies that can be loaded by name:
+
+| Policy ID | Best For | Safety Level |
+| :--- | :--- | :--- |
+| `retail_banking_turbo` | Retail bots where <10ms speed is required | Medium |
+| `wealth_mgmt_assistant_v1`| Investment advice with deep NER & Compliance | High |
+| `compliance_officer_strict`| High-risk operations and PMLA enforcement | Critical |
+| `fraud_ops_agent_v1` | Backend fraud analysis with strict PII protection | Critical |
+
 ```python
-import asyncio
+# Load by name automatically from finguard/policies/
+guard = FinGuard(policy="retail_banking_turbo")
+```
+
+## 📖 Quick Start
+
+```python
 from finguard import FinGuard
 
-# 1. Initialize guard with a built-in policy (Wealth Mgmt, Banking, or Fraud)
-guard = FinGuard(policy="wealth_mgmt_assistant_v1")
+# Force Turbo Mode (Fast PII only)
+guard = FinGuard(policy={
+    "pii": {"enabled": True, "fast_pii_only": True},
+    "injection": {"enabled": True}
+})
 
-# 2. Wrap your async LLM call
 @guard.wrap
-async def chatbot_reply(prompt: str) -> str:
-    return await my_llm_client.chat(prompt)
+async def wealth_assistant(prompt: str):
+    return await llm.generate(prompt)
 
-# 3. Use it! Everything is scanned asynchronously with ONNX acceleration.
-async def main():
-    try:
-        response = await chatbot_reply("What mutual fund guarantees 20% returns?")
-        print(response)
-    except Exception as e:
-        print(f"FinGuard Intercepted: {e}")
-
-asyncio.run(main())
+# Returns redacted or blocked response
+response = await wealth_assistant("My PAN is ABCDE1234F")
 ```
 
-## 🚀 Performance
+## 📊 Benchmarking
+Run the refined benchmark suite to verify your environment's performance:
+```bash
+uv run benchmark.py
+```
 
-FinGuard v0.2.0 uses **ONNX Runtime** by default, providing **sub-150ms** latency for full-stack financial safety checks on standard CPU hardware.
-
-| Runtime | Device | Latency (p50) | Status |
-| :--- | :--- | :--- | :--- |
-| Standard (v0.1) | CPU | ~400 ms | Deprecated |
-| **Optimized** (v0.2) | **CPU (ONNX)** | **117 ms** | **Active** |
-
-## Documentation
-
-- [📘 General User Guide](docs/user_guide.md)
-- [⚙️ Creating Custom YAML Policies](docs/custom_policies.md)
-
----
-*Built openly for the financial AI community.*
+## ⚖️ License
+MIT License. Optimized for production-ready financial AI.
