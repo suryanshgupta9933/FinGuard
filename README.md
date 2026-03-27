@@ -4,7 +4,7 @@
 
 FinGuard is a modular, plug-and-play guardrail framework built for fintech teams. It wraps any LLM with a tiered safety pipeline covering PII redaction, prompt injection detection, regulatory compliance, and financial fraud signals — all configurable via simple YAML policies.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arupmahatha/FinGuard/blob/main/notebooks/FinGuard_Demo.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-gtumX-iv2qUeAwr27ULvwI-_WEGgFMd#scrollTo=iNfXwkl8YbJG)
 
 ---
 
