@@ -1,0 +1,15 @@
+policy_id: retail_banking_turbo
+risk_level: low
+
+pii:
+  enabled: true
+  fast_pii_only: true # ELITE: Skip NER, use Regex Fast-Path only
+  entities: [IN_PAN, IN_AADHAAR, IN_IFSC, IN_VPA]
+
+injection:
+  enabled: true
+  threshold: 0.95
+
+output:
+  on_fail: block
+  compliance_phrases: false # Standard banking doesn't need disclaimer checks

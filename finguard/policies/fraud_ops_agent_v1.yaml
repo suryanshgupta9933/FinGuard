@@ -2,21 +2,19 @@ policy_id: fraud_ops_agent_v1
 risk_level: high
 
 pii:
+  enabled: true
   engine: presidio
-  entities: [IN_PAN, IN_AADHAAR, IN_DEMAT, PHONE_NUMBER, EMAIL_ADDRESS, CREDIT_CARD, PERSON]
-  action: anonymize # Supports round-trip via presidio for secure auditing
+  entities: [IN_PAN, IN_AADHAAR, PHONE_NUMBER, CREDIT_CARD]
+  action: anonymize
+  redact_output: true
 
 injection:
-  engine: llm_guard
-  threshold: 0.999
-  high_risk_fallback: llama_guard3
+  enabled: true
+  threshold: 0.9
+
+pMLA:
+  enabled: true
+  threshold: 10000.0 # Stricter for fraud ops
 
 output:
-  numerical_validation: false
-  compliance_phrases: none
-  required_disclaimers: []
   on_fail: block
-
-audit:
-  backend: json
-  retention_days: 2555 # 7-year PMLA retention

@@ -4,11 +4,15 @@ from typing import Dict, Any, List, Optional
 import os
 
 class PiiConfig(BaseModel):
+    enabled: bool = True
     engine: str = "presidio"
     entities: List[str] = Field(default_factory=list)
     action: str = "anonymize"
+    redact_output: bool = False
+    fast_pii_only: bool = False # NEW: Skip heavyweight NER if enabled
 
 class InjectionConfig(BaseModel):
+    enabled: bool = True
     engine: str = "llm_guard"
     threshold: float = 0.75
     high_risk_fallback: Optional[str] = None
@@ -20,7 +24,7 @@ class TopicBoundaryConfig(BaseModel):
 
 class OutputConfig(BaseModel):
     numerical_validation: bool = False
-    compliance_phrases: Optional[str] = None
+    compliance_phrases: Optional[str | bool] = None
     required_disclaimers: List[str] = Field(default_factory=list)
     on_fail: str = "block" # block | reask | fix | warn
 
@@ -30,7 +34,7 @@ class AuditConfig(BaseModel):
     retention_days: int = 30
 
 class PolicyConfig(BaseModel):
-    policy_id: str
+    policy_id: str = "custom_policy"
     risk_level: str = "low"
     pii: Optional[PiiConfig] = None
     injection: Optional[InjectionConfig] = None

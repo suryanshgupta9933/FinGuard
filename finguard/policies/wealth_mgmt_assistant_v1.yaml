@@ -5,11 +5,11 @@ pii:
   engine: presidio
   entities: [IN_PAN, IN_AADHAAR, IN_DEMAT, PHONE_NUMBER, EMAIL_ADDRESS, CREDIT_CARD]
   action: anonymize
+  redact_output: true # ELITE: Redact PII in LLM response
 
 injection:
   engine: llm_guard
-  threshold: 0.999
-  high_risk_fallback: llama_guard3
+  threshold: 0.9
 
 topic_boundary:
   enabled: true
@@ -26,4 +26,3 @@ output:
 
 audit:
   backend: json
-  retention_days: 365
