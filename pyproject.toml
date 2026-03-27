@@ -1,6 +1,6 @@
 [project]
 name = "finguard"
-version = "0.2.0"
+version = "0.3.0"
 description = "FinGuard \u2014 Open-source LLM safety layer for financial AI"
 authors = [
     { name = "FinGuard Authors" }
