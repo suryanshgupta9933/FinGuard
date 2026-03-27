@@ -1,57 +1,77 @@
 # Custom YAML Policies
 
-FinGuard allows extensive customization without writing boilerplate Python code. You can define your own rules in a `.yaml` file and pass its path to the `FinGuard` constructor.
+FinGuard policies are YAML files that define your safety posture. They can be loaded by name (from the built-in catalog) or by file path.
 
-## Structure of a Policy File
-
-A standard policy file contains blocks for `pii`, `topic_boundary`, and `output`.
+## Policy Schema
 
 ```yaml
-policy_id: custom_finance_rules_v1
-risk_level: medium
+policy_id: my_financial_bot_v1
+risk_level: medium  # low | medium | high
 
 pii:
-  engine: presidio
-  entities: [IN_PAN, IN_AADHAAR, CREDIT_CARD]
-  action: anonymize # Options: anonymize, block
+  enabled: true
+  fast_pii_only: false      # true = regex only (<35ms), false = full Presidio NER (~55ms)
+  locale_packs: []           # Optional: ["IN_EXTENDED", "US", "UK", "GLOBAL"]
+  extra_entities: []         # Add any Presidio entity ID
+  exclude_entities: []       # Remove entities from the finance base
+  redact_output: false       # Also redact PII in LLM responses
+
+injection:
+  enabled: true
+  threshold: 1.0             # 1.0 = only block on absolute certainty (recommended)
 
 topic_boundary:
-  enabled: true
-  banned_topics: 
-    - medical_advice
+  enabled: false
+  banned_topics:
     - crypto_trading
-    - political_opinions
+    - medical_advice
+    - unstructured_loans
 
 output:
-  numerical_validation: true  # Prevents numerical hallucinations
-  compliance_phrases: custom
-  required_disclaimers: 
+  numerical_validation: false
+  compliance_phrases: false
+  required_disclaimers:
     - "This is not personalized investment advice."
-  on_fail: block  # Options: block, warn, fix
-
-audit:
-  backend: json
-  retention_days: 180
+  on_fail: block
 ```
 
-## Using Custom YAML
+## Finance Base (Always Active)
 
-To use your custom YAML:
+The following entities are always scanned regardless of `locale_packs`:
+
+| Entity | ID |
+| :--- | :--- |
+| PAN Card | `IN_PAN` |
+| Aadhaar | `IN_AADHAAR` |
+| IFSC Code | `IN_IFSC` (custom) |
+| UPI/VPA | `IN_VPA` (custom) |
+| Credit Card | `CREDIT_CARD` |
+| IBAN | `IBAN_CODE` |
+| Email / Phone | `EMAIL_ADDRESS`, `PHONE_NUMBER` |
+
+## Locale Packs
+
+```yaml
+pii:
+  locale_packs:
+    - IN_EXTENDED  # Voter ID, Passport, Vehicle Registration
+    - US           # SSN, Driver License
+    - UK           # NHS, NINO
+    - GLOBAL       # IP, URL, Location, Date
+```
+
+## Loading Policies
 
 ```python
-from finguard import FinGuard
+# By name (from finguard/policies/)
+guard = FinGuard(policy="retail_banking")
 
-# Pass the absolute or relative path to your YAML file
-guard = FinGuard(policy="./path/to/my_custom_policy.yaml")
+# By file path
+guard = FinGuard(policy="./path/to/my_policy.yaml")
 
-@guard.wrap
-async def generate(prompt: str):
-    pass
+# Inline dict
+guard = FinGuard(policy={
+    "pii": {"enabled": True, "fast_pii_only": True},
+    "injection": {"enabled": True, "threshold": 1.0}
+})
 ```
-
-## Key Properties
-
-- **`pii.entities`**: Specify the exact entities you want to scrub. FinGuard includes custom Indian entities like `IN_PAN` and `IN_AADHAAR`.
-- **`topic_boundary.banned_topics`**: Provide a list of semantic topics the LLM should refuse to engage with.
-- **`output.numerical_validation`**: Set to `true` to cross-check numbers in the output against the prompt, mitigating hallucinated return rates.
-- **`output.required_disclaimers`**: Ensures the LLM appended these specific strings before returning the response. If missing, it triggers a violation.

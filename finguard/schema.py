@@ -20,3 +20,4 @@ class GuardResult:
     violations: List[Dict[str, Any]]
     action: str
     latency_ms: float = 0.0
+    component_latencies: Dict[str, float] = field(default_factory=dict)

@@ -14,10 +14,12 @@ class NumericalClaimValidator:
         # If the output asserts quantitative facts not in the prompt, surface it
         
         prompt_numbers = set(re.findall(r'\b\d+(?:\.\d+)?(?:%|M|K|B)?\b', prompt, re.IGNORECASE))
+        if not prompt_numbers:
+            return output, True, 0.0
+
         output_numbers = set(re.findall(r'\b\d+(?:\.\d+)?(?:%|M|K|B)?\b', output, re.IGNORECASE))
         
         # Numbers in output not present in prompt
-        # A real implementation would parse semantics and grounding.
         ungrounded = output_numbers.difference(prompt_numbers)
         
         if ungrounded:

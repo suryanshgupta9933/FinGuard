@@ -1,0 +1,21 @@
+# ============================================================
+# FinGuard Policy: retail_banking
+# ============================================================
+# For retail banking chatbots handling balance, statements, FDs.
+# Full PII detection + injection blocking. No topic restrictions.
+# Intended for: Branch chatbots, net banking assistants, UPI bots.
+# ============================================================
+
+policy_id: retail_banking
+risk_level: medium
+
+pii:
+  enabled: true
+  locale_packs: []             # Finance base is enough for retail
+
+injection:
+  enabled: true
+  threshold: 1.0
+
+output:
+  on_fail: block

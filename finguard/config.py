@@ -4,11 +4,20 @@ from typing import Dict, Any, List, Optional
 import os
 
 class PiiConfig(BaseModel):
-    engine: str = "presidio"
-    entities: List[str] = Field(default_factory=list)
+    enabled: bool = True
+    # locale_packs: Optional locale extensions on top of the mandatory finance base.
+    # Options: "IN_EXTENDED", "US", "UK", "GLOBAL"
+    locale_packs: List[str] = Field(default_factory=list)
+    # extra_entities: Any additional Presidio entity IDs to include
+    extra_entities: List[str] = Field(default_factory=list)
+    # exclude_entities: Entities to remove even from the finance base
+    exclude_entities: List[str] = Field(default_factory=list)
     action: str = "anonymize"
+    redact_output: bool = False
+    fast_pii_only: bool = False  # Skip NER, use custom regex Fast-Path only
 
 class InjectionConfig(BaseModel):
+    enabled: bool = True
     engine: str = "llm_guard"
     threshold: float = 0.75
     high_risk_fallback: Optional[str] = None
@@ -20,7 +29,7 @@ class TopicBoundaryConfig(BaseModel):
 
 class OutputConfig(BaseModel):
     numerical_validation: bool = False
-    compliance_phrases: Optional[str] = None
+    compliance_phrases: Optional[str | bool] = None
     required_disclaimers: List[str] = Field(default_factory=list)
     on_fail: str = "block" # block | reask | fix | warn
 
@@ -30,7 +39,7 @@ class AuditConfig(BaseModel):
     retention_days: int = 30
 
 class PolicyConfig(BaseModel):
-    policy_id: str
+    policy_id: str = "custom_policy"
     risk_level: str = "low"
     pii: Optional[PiiConfig] = None
     injection: Optional[InjectionConfig] = None

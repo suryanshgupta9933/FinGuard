@@ -1,0 +1,22 @@
+# ============================================================
+# FinGuard Policy: fast_lane
+# ============================================================
+# Speed-optimized for high-throughput systems.
+# Uses regex Fast-Path only — no NER model, no topic scanning.
+# Latency target: <5ms. Catches PAN, Aadhaar, IFSC, UPI instantly.
+# Intended for: SMS bots, IVR systems, real-time dashboards.
+# ============================================================
+
+policy_id: fast_lane
+risk_level: low
+
+pii:
+  enabled: true
+  fast_pii_only: true          # Skip NER, use regex only (<1ms)
+
+injection:
+  enabled: true
+  threshold: 1.0               # Only hard certainty triggers a block
+
+output:
+  on_fail: block

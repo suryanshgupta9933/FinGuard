@@ -1,0 +1,35 @@
+# ============================================================
+# FinGuard Policy: wealth_advisor
+# ============================================================
+# For LLMs that provide investment or financial planning advice.
+# Enforces SEBI/RBI-style disclaimers and blocks off-topic advice.
+# Intended for: Robo-advisors, WealthTech bots, portfolio managers.
+# ============================================================
+
+policy_id: wealth_advisor
+risk_level: high
+
+pii:
+  enabled: true
+  locale_packs: ["IN_EXTENDED"]
+  redact_output: true
+
+injection:
+  enabled: true
+  threshold: 1.0
+
+topic_boundary:
+  enabled: true
+  banned_topics:
+    - crypto_trading
+    - unstructured_loans
+    - insurance_advice
+
+output:
+  numerical_validation: true
+  compliance_phrases: true
+  required_disclaimers:
+    - "This is not personalized investment advice."
+    - "Mutual fund investments are subject to market risks."
+    - "Past performance is not indicative of future returns."
+  on_fail: block

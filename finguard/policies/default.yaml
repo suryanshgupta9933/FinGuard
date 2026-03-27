@@ -1,0 +1,24 @@
+# ============================================================
+# FinGuard Policy: default
+# ============================================================
+# A balanced, general-purpose policy for most financial AI bots.
+# Enables PII detection + injection guard with sensible defaults.
+# Good starting point for any fintech LLM integration.
+# ============================================================
+
+policy_id: default
+risk_level: medium
+
+pii:
+  enabled: true
+  # Finance base is always active: CREDIT_CARD, IBAN, PAN, AADHAAR, IFSC, VPA
+  # Add locale packs here to extend: ["IN_EXTENDED", "US", "UK", "GLOBAL"]
+  locale_packs: []
+
+injection:
+  enabled: true
+  # 1.0 = Only block on absolute certainty (recommended for production)
+  threshold: 1.0
+
+output:
+  on_fail: block
