@@ -5,11 +5,16 @@ import os
 
 class PiiConfig(BaseModel):
     enabled: bool = True
-    engine: str = "presidio"
-    entities: List[str] = Field(default_factory=list)
+    # locale_packs: Optional locale extensions on top of the mandatory finance base.
+    # Options: "IN_EXTENDED", "US", "UK", "GLOBAL"
+    locale_packs: List[str] = Field(default_factory=list)
+    # extra_entities: Any additional Presidio entity IDs to include
+    extra_entities: List[str] = Field(default_factory=list)
+    # exclude_entities: Entities to remove even from the finance base
+    exclude_entities: List[str] = Field(default_factory=list)
     action: str = "anonymize"
     redact_output: bool = False
-    fast_pii_only: bool = False # NEW: Skip heavyweight NER if enabled
+    fast_pii_only: bool = False  # Skip NER, use custom regex Fast-Path only
 
 class InjectionConfig(BaseModel):
     enabled: bool = True
