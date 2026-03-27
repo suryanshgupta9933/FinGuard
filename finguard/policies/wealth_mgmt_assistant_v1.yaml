@@ -1,0 +1,29 @@
+policy_id: wealth_mgmt_assistant_v1
+risk_level: high
+
+pii:
+  engine: presidio
+  entities: [IN_PAN, IN_AADHAAR, IN_DEMAT, PHONE_NUMBER, EMAIL_ADDRESS, CREDIT_CARD]
+  action: anonymize
+
+injection:
+  engine: llm_guard
+  threshold: 0.999
+  high_risk_fallback: llama_guard3
+
+topic_boundary:
+  enabled: true
+  banned_topics: [crypto_trading, medical_advice, unstructured_loans]
+  
+output:
+  numerical_validation: true
+  compliance_phrases: sebi_rbi_v1
+  required_disclaimers: [
+    "This is not personalized investment advice.",
+    "Mutual fund investments are subject to market risks."
+  ]
+  on_fail: block
+
+audit:
+  backend: json
+  retention_days: 365

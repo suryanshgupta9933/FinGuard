@@ -1,0 +1,21 @@
+policy_id: banking_support_chatbot_v1
+risk_level: low
+
+pii:
+  engine: presidio
+  entities: [IN_PAN, IN_AADHAAR, IN_DEMAT, PHONE_NUMBER, EMAIL_ADDRESS, CREDIT_CARD]
+  action: anonymize
+
+topic_boundary:
+  enabled: true
+  banned_topics: [medical_advice, political_opinions, crypto_trading]
+  
+output:
+  numerical_validation: false # Fast path, disabled
+  compliance_phrases: sebi_rbi_v1
+  required_disclaimers: []
+  on_fail: warn
+
+audit:
+  backend: json
+  retention_days: 90
