@@ -6,14 +6,23 @@ from .pipeline import InputPipeline, OutputPipeline
 from .audit import AuditLogger
 from .schema import GuardRequest, GuardResult, ValidationResult
 from .router import get_vault
+from .utils import check_runtime_health, download_models
 
 class FinGuard:
+    @staticmethod
+    def download_models():
+        """Pre-fetch all models for built-in policies."""
+        download_models()
+
     def __init__(self, policy: str | dict | PolicyConfig = "default"):
         """
         Initialize FinGuard with a policy.
         Optimized for high-speed CPU inference (ONNX) by default.
         Uses cached models to ensure near-instant multi-instance initialization.
         """
+        # Perform environment pre-flight check
+        check_runtime_health()
+        
         self.policy = PolicyConfig.load(policy)
         self.vault = get_vault()
         self.input_pipe = InputPipeline(self.policy, vault=self.vault)

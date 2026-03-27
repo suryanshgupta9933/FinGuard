@@ -46,3 +46,6 @@ venv.bak/
 
 # extra md for docs
 *.MD
+
+# Test ENV
+test_env/

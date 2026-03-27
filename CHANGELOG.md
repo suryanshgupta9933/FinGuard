@@ -2,11 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] - 2026-03-28
+## [0.3.1] - 2026-03-28
 
-### Changed
-- **Documentation**: Updated `memory.MD` with a complete API Context Map reflecting the modern 3-Tier architecture and core modules.
-- **Tests**: Replaced deprecated policies (`banking_support_chatbot_v1`, `wealth_mgmt_assistant_v1`) in the test suite with updated catalog entries (`retail_banking`, `wealth_advisor`).
+### Added
+- **Environment Health Check**: New `check_runtime_health()` utility to verify ONNX availability at startup. FinGuard now warns users loudly with fix instructions if `onnxruntime` or `optimum` are missing.
+- **Model Pre-fetching**: New `finguard-download` CLI command and `FinGuard.download_models()` method to pre-cache all ONNX models, eliminating first-run latency.
+
+### Fixed
+- **Silent Latency Regression**: Fixed a bug where scanners would silently fall back to slow PyTorch inference without notifying the user.
+- **Environment Stability**: Pinned `numpy < 2.0.0` and `torch >= 2.2.0` to resolve critical initialization crashes and `rms_norm` attribute errors in fresh environments.
+- **Pipeline Redaction**: Corrected the output pipeline to properly recognize and persist PII redactions from the native `FinGuardPIIEngine`.
+
+## [0.3.0] - 2026-03-28
 
 ## [0.2.0] - 2026-03-27
 

@@ -19,19 +19,26 @@ def get_vault():
 def _setup_onnx_logging():
     global _HARDWARE_LOGGED
     if not _HARDWARE_LOGGED:
+        from .utils import check_runtime_health
+        is_healthy = check_runtime_health()
+        
         loggers = [
             "transformers", "huggingface_hub", "onnxruntime", 
             "presidio_analyzer", "presidio_anonymizer",
             "presidio_analyzer.recognizer_registry",
             "presidio_analyzer.app",
             "presidio_analyzer.ner_model_configuration",
-            "presidio-analyzer",  # Silences 'Recognizer not added' warnings
+            "presidio-analyzer",
         ]
         for logger_name in loggers:
             logger = logging.getLogger(logger_name)
             logger.setLevel(logging.CRITICAL)
             logger.propagate = False
-        print("[FinGuard Info] Using Optimized CPU Runtime (ONNX).")
+            
+        if is_healthy:
+            print("[FinGuard Info] Using Optimized CPU Runtime (ONNX).")
+        else:
+            print("[FinGuard Warning] ONNX Runtime optimized path unavailable. Falling back to default PyTorch.")
         _HARDWARE_LOGGED = True
 
 def get_cached_scanner(cls, **kwargs):
@@ -93,7 +100,12 @@ def get_cached_injection_scanner(threshold: float, use_onnx: bool = True):
     global _PROMPT_INJECTION_MODEL
     if _PROMPT_INJECTION_MODEL is None:
         _setup_onnx_logging()
-        _PROMPT_INJECTION_MODEL = PromptInjection(threshold=0.5, use_onnx=use_onnx)
+        from .utils import check_runtime_health
+        onnx_available = check_runtime_health()
+        _PROMPT_INJECTION_MODEL = PromptInjection(
+            threshold=0.5, 
+            use_onnx=use_onnx and onnx_available
+        )
     return PromptInjectionWrapper(_PROMPT_INJECTION_MODEL, threshold)
 
 def get_input_scanners(risk_level: str, policy: Any, vault: Any = None) -> List[Any]:
