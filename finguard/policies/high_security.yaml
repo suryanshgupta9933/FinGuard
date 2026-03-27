@@ -1,0 +1,36 @@
+# ============================================================
+# FinGuard Policy: high_security
+# ============================================================
+# Maximum protection. All scanners enabled.
+# Intended for: Compliance bots, fraud ops, internal audit tools.
+# Trade-off: Higher latency (~200-250ms) for full coverage.
+# ============================================================
+
+policy_id: high_security
+risk_level: high
+
+pii:
+  enabled: true
+  # Extended Indian IDs + global extras (IP, URL, Location)
+  locale_packs: ["IN_EXTENDED", "GLOBAL"]
+  redact_output: true          # Also redact PII in LLM responses
+
+injection:
+  enabled: true
+  threshold: 1.0
+
+topic_boundary:
+  enabled: true
+  banned_topics:
+    - crypto_trading
+    - medical_advice
+    - unstructured_loans
+    - legal_advice
+
+output:
+  numerical_validation: true   # Catch hallucinated numbers
+  compliance_phrases: true     # Enforce regulatory disclaimers
+  required_disclaimers:
+    - "This is not personalized investment advice."
+    - "Investments are subject to market risks."
+  on_fail: block
