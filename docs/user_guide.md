@@ -1,41 +1,62 @@
 # FinGuard User Guide
 
-Welcome to FinGuard! FinGuard is designed to be the security perimeter for your financial LLM applications.
+FinGuard is a modular safety orchestration layer for financial LLM applications. It wraps any async LLM function with a tiered pipeline covering PII, injection, and compliance.
 
-## Getting Started
+## Quick Start
 
-1. **Install FinGuard:**
-   ```bash
-   pip install finguard
-   ```
+```bash
+pip install finguard
+```
 
-2. **Basic Usage:**
-   You can secure any async LLM callable by importing `FinGuard` and wrapping it with a policy string.
-   
-   ```python
-   import asyncio
-   from finguard import FinGuard
+```python
+import asyncio
+from finguard import FinGuard
 
-   guard = FinGuard(policy="banking_support_chatbot_v1")
+guard = FinGuard(policy="retail_banking")
 
-   @guard.wrap
-   async def my_llm_call(prompt: str) -> str:
-       # Call your LLM here (OpenAI, Anthropic, or Local)
-       return "Processed: " + prompt
+@guard.wrap
+async def banking_bot(prompt: str) -> str:
+    return await llm.generate(prompt)
 
-   asyncio.run(my_llm_call("Can you show my account balance?"))
-   ```
+asyncio.run(banking_bot("My PAN is ABCDE1234F, help me file taxes"))
+# → BLOCKED: Detected IN_PAN in prompt
+```
 
-3. **Built-In Policies:**
-   - `banking_support_chatbot_v1`: Disables numerical checks, fast risk routing, PII anonymization.
-   - `wealth_mgmt_assistant_v1`: Full strict compliance checks, checking guaranteed returns, hallucinated numbers.
-   - `fraud_ops_agent_v1`: PII retention and tracking.
+## Built-In Policies
+
+| Policy | Best For | Latency |
+| :--- | :--- | :--- |
+| `default` | General financial bot | ~55ms |
+| `fast_lane` | IVR, SMS, high-throughput | ~35ms |
+| `retail_banking` | Branch chatbots, net banking | ~55ms |
+| `wealth_advisor` | Robo-advisors (SEBI compliance) | ~180ms |
+| `high_security` | Fraud ops, compliance officers | ~180ms |
 
 ## Pipeline Architecture
-FinGuard intercepts requests twice:
-1. **Input Pipeline:** Runs before the LLM. It intercepts prompt injection and banned topics.
-2. **Output Pipeline:** Runs after the LLM. It intercepts unapproved financial advice and ungrounded numeric claims.
 
-Violations are logged automatically to `AuditLogger`.
+```
+Prompt → [Input Pipeline] → LLM → [Output Pipeline] → Response
+```
 
-For advanced usage, see [Custom Policies](./custom_policies.md).
+**Input Pipeline** (runs before the LLM):
+- PII detection and blocking (Presidio NER or Regex fast-path)
+- PMLA high-value transfer detection
+- Prompt injection classification (ONNX AI)
+- Topic boundary enforcement
+
+**Output Pipeline** (runs after the LLM):
+- PII redaction in responses (if `redact_output: true`)
+- Numerical hallucination check
+- Compliance phrase enforcement (SEBI/RBI disclaimers)
+
+## Observability
+
+Every `GuardResult` exposes `component_latencies`:
+
+```python
+res = await guard(req, llm_fn)
+print(res.component_latencies)
+# {'FinGuardPIIEngine': 15.4ms, 'PromptInjection': 37.2ms, 'BanTopics': 96.1ms}
+```
+
+See [Custom Policies](./custom_policies.md) for advanced configuration.
