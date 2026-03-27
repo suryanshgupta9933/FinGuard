@@ -61,7 +61,7 @@ class OutputPipeline:
                 # llm-guard scanners take 1 arg (text)
                 # FinGuard custom validators take 2 args (prompt, text)
                 
-                if name in ["Anonymize", "BanTopics", "PromptInjection"]:
+                if name in ["Anonymize", "BanTopics", "PromptInjection", "FinGuardPIIEngine"]:
                     res = scanner.scan(sanitized_output)
                 else:
                     # Custom financial validators
@@ -70,7 +70,7 @@ class OutputPipeline:
                 new_text, valid, risk = res
                 
                 # Update sanitized_output if it's an anonymizer
-                if name == "Anonymize":
+                if name in ["Anonymize", "FinGuardPIIEngine"]:
                     sanitized_output = new_text
 
                 if not valid:
