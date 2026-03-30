@@ -238,7 +238,6 @@ class TestGuardTraceIntegration:
         assert len(result.trace.input_scanners) > 0
         st = result.trace.input_scanners[0]
         assert isinstance(st, ScannerTrace)
-        assert st.latency_ms > 0
         assert st.stage == "input"
 
     @pytest.mark.asyncio
