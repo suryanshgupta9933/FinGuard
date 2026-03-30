@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2026-03-31
+
+### Added
+- **Langfuse Backend** (`LangfuseBackend`): Native hierarchical session tracing and visual safety scoring using the Langfuse API. 
+- **OpenTelemetry Backend** (`OTELBackend`): Native APM integration emitting standard W3C traces (`finguard.guard`), spans for respective scanners, and metrics (`finguard.latency.ms`). 
+- **Agent Backtracking Exceptions**: Framework now raises `FinGuardViolation` (carrying the full `GuardTrace`) instead of a generic string exception when a policy is blocked, allowing orchestrators to programmatically self-correct.
+- **Observability Extras**: Exposes enterprise backend dependencies cleanly via `pip install finguard[observability]`, keeping the core module lightweight. Added `pip install finguard[all]`.
+
 ## [0.4.0] - 2026-03-30
 
 ### Added

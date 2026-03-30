@@ -111,6 +111,41 @@ pii:
 
 ---
 
+## 🕵️‍♂️ Enterprise Observability & Audit
+
+FinGuard features **GuardTrace**, a forensic-grade audit engine designed for SOC2 compliance and incident response. Every safety decision is fully reconstructable, without logging raw PII.
+
+### 1. Multi-Backend Logging
+Out-of-the-box support for:
+- **NDJSON File Logging**: Built for easy ingestion into Splunk, DataDog, and ElasticSearch.
+- **Langfuse**: Hierarchical session traces + visual violation scoring (`pip install finguard[observability]`).
+- **OpenTelemetry**: Native OTEL spans and metrics for enterprise APM (`pip install finguard[observability]`).
+
+```yaml
+# policy.yaml
+audit:
+  backend: "langfuse"       # "memory" | "file" | "langfuse" | "otel"
+  emit_traces: true
+  redact_input: true        # Logs SHA-256 fingerprint instead of raw text
+  include_metadata_keys: ["session_id", "user_id"] # Safe tracking
+```
+
+### 2. Agentic Backtracking
+If FinGuard blocks an agent's tool call or prompt, it raises a structured `FinGuardViolation` containing the exact `GuardTrace`. Your agent can catch this, inspect the violation, and **self-correct** its plan instead of crashing:
+
+```python
+from finguard.exceptions import FinGuardViolation
+
+try:
+    response = await banking_assistant("Process transfer for 1234-5678-9012-3456")
+except FinGuardViolation as e:
+    failed_scanners = [s.scanner for s in e.trace.input_scanners if s.triggered]
+    if "presidio_pii" in failed_scanners:
+        print("Self-correcting: removing PII and retrying...")
+```
+
+---
+
 ## 🧩 Architecture
 
 ```
@@ -140,33 +175,6 @@ Sample output:
   Tier 3 – High Sec   (Full)            181.0ms  149.2ms  277.3ms
 ══════════════════════════════════════════════════════════════
 ```
-
----
-
-## 📁 Project Structure
-
-```
-finguard/
-├── pii/                   # Native Presidio PII engine
-│   ├── engine.py          # FinGuardPIIEngine singleton
-│   ├── profiles.py        # Finance base + locale packs
-│   └── recognizers.py     # Custom recognizers (IFSC, VPA, Demat)
-├── validators/            # Domain-specific validators
-│   ├── financial.py       # Fast-path regex + PMLA scanner
-│   ├── compliance.py      # Disclaimer enforcement
-│   └── numerical.py       # Hallucination detection
-├── policies/              # YAML policy catalog
-│   ├── default.yaml
-│   ├── fast_lane.yaml
-│   ├── retail_banking.yaml
-│   ├── wealth_advisor.yaml
-│   └── high_security.yaml
-├── core.py                # FinGuard main class
-├── router.py              # Scanner factory + model cache
-└── config.py              # Pydantic policy models
-```
-
----
 
 ## ⚖️ License
 
