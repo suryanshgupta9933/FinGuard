@@ -49,3 +49,6 @@ venv.bak/
 
 # Test ENV
 test_env/
+
+# Logging
+logs/

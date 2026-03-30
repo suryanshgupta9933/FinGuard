@@ -34,9 +34,27 @@ class OutputConfig(BaseModel):
     on_fail: str = "block" # block | reask | fix | warn
 
 class AuditConfig(BaseModel):
-    backend: str = "json"
-    trace_provider: Optional[str] = None
+    backend: str = "memory"
+    """Trace backend: 'memory' | 'file' | 'console'"""
+    
+    file_path: str = "logs/finguard_%Y-%m-%d.ndjson"
+    """Log file path when backend='file'. Supports strftime patterns for daily rotation."""
+    
+    emit_traces: bool = True
+    """Set to False to completely disable GuardTrace assembly (minimal prod overhead)."""
+    
+    redact_input: bool = True
+    """If True, stores SHA-256 fingerprint instead of raw prompt text. GDPR-safe."""
+    
+    include_metadata_keys: Optional[List[str]] = None
+    """Allowlist of metadata keys to persist in trace. None means allow all."""
+    
     retention_days: int = 30
+    """Advisory retention period. Backends may use this for rotation logic."""
+    
+    trace_provider: Optional[str] = None
+    """Future: 'langfuse' | 'otel' — reserved for v0.5 observability integrations."""
+
 
 class PolicyConfig(BaseModel):
     policy_id: str = "custom_policy"

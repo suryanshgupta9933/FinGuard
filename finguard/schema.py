@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from .audit.trace import GuardTrace
 
 @dataclass
 class ValidationResult:
@@ -21,3 +24,5 @@ class GuardResult:
     action: str
     latency_ms: float = 0.0
     component_latencies: Dict[str, float] = field(default_factory=dict)
+    trace: Optional["GuardTrace"] = None
+    """Full forensic trace of this guard invocation. None if tracing is disabled."""

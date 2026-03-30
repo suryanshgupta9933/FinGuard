@@ -60,7 +60,7 @@ async def run_case(guard, prompt, label) -> float:
 
 async def run_benchmark():
     print("\n" + "═"*62)
-    print("  FinGuard v0.3.0 — Production Performance Benchmark")
+    print("  FinGuard — Production Performance Benchmark")
     print("═"*62)
 
     # --- Guards ---
