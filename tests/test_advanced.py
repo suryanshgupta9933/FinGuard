@@ -1,6 +1,7 @@
 import pytest
 import asyncio
 from finguard import FinGuard
+from finguard.exceptions import FinGuardViolation
 
 @pytest.mark.asyncio
 async def test_output_pii_redaction():
@@ -43,7 +44,7 @@ async def test_pmla_blocking():
     async def mock_llm(p: str): return "OK"
     
     # Large amount
-    with pytest.raises(ValueError, match="pmla_detection"):
+    with pytest.raises(FinGuardViolation, match="pmla_detection"):
         await mock_llm("Transfer 75,000 to John")
         
     # Small amount (Should pass)
@@ -75,7 +76,7 @@ async def test_fast_pii():
     async def mock_llm(p: str): return "OK"
     
     # PAN Card (Should block because it violates PII in input)
-    with pytest.raises(ValueError):
+    with pytest.raises(FinGuardViolation):
         await mock_llm("My PAN is ABCDE1234F")
 
 @pytest.mark.asyncio
