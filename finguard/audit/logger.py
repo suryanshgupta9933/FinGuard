@@ -50,6 +50,12 @@ class AuditLogger:
                 self._backends.append(FileBackend(path=path))
             elif backend_type == "console":
                 self._backends.append(_ConsoleBackend())
+            elif backend_type == "langfuse":
+                from .backends.langfuse import LangfuseBackend
+                self._backends.append(LangfuseBackend())
+            elif backend_type == "otel":
+                from .backends.otel import OTELBackend
+                self._backends.append(OTELBackend())
 
     # ── Core record method (called by core.py) ─────────────────────────────
 
