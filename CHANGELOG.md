@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-03-30
+
+### Added
+- **GuardTrace** — Immutable forensic record per invocation. Every `GuardResult` now carries a `trace` field with `trace_id`, `policy_id`, `risk_tier`, input fingerprint, per-scanner breakdown, block stage, and latency.
+- **ScannerTrace** — Per-scanner execution record capturing name, stage, trigger status, confidence score, violations, latency, and skip/bypass reason.
+- **AuditLogger** — Multi-backend fan-out logger. Assembles `GuardTrace` from pipeline data and dispatches to configured backends.
+- **Audit Backends** — `memory` (default, circular buffer), `file` (NDJSON, SIEM-compatible, strftime rotation), `console` (pretty-print for debugging).
+- **In-process query API** — `guard.traces`, `guard.get_trace(id)`, `guard.violations` for incident review without leaving the process.
+- **Extended `AuditConfig`** — `redact_input`, `include_metadata_keys` allowlist, `file_path` with daily rotation, `emit_traces` kill-switch.
+- **Canonical scanner name registry** — Stable, human-readable scanner names in all traces regardless of class changes.
+
+### Changed
+- `pipeline.py` — Input and Output pipelines now return `List[ScannerTrace]` as a fourth/fifth element (backwards-compatible).
+- `schema.py` — `GuardResult` gains an optional `trace: GuardTrace | None` field.
+- `config.py` — `AuditConfig.backend` default changed from `'json'` to `'memory'`.
+
 ## [0.3.1] - 2026-03-28
 
 ### Added
