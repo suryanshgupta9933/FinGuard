@@ -20,3 +20,7 @@ injection:
 
 output:
   on_fail: block
+
+audit:
+  backend: memory
+  emit_traces: true
