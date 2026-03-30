@@ -49,14 +49,35 @@ Prompt → [Input Pipeline] → LLM → [Output Pipeline] → Response
 - Numerical hallucination check
 - Compliance phrase enforcement (SEBI/RBI disclaimers)
 
-## Observability
+## 🕵️ Observability & Auditing
 
-Every `GuardResult` exposes `component_latencies`:
+As of v0.4.1, `FinGuard` ditches flat logs for structured, forensic-grade **GuardTrace** records.
 
+### Backtracking Exceptions
+If FinGuard blocks a prompt, it raises a `FinGuardViolation` containing the full trace. Your agents can catch this, inspect what triggered the block, and self-correct safely:
 ```python
-res = await guard(req, llm_fn)
-print(res.component_latencies)
-# {'FinGuardPIIEngine': 15.4ms, 'PromptInjection': 37.2ms, 'BanTopics': 96.1ms}
+from finguard.exceptions import FinGuardViolation
+
+try:
+    response = await banking_bot("My PAN is ABCDE1234F")
+except FinGuardViolation as e:
+    failed_scanners = [s.scanner for s in e.trace.input_scanners if s.triggered]
+    print(f"I need to fix: {failed_scanners}") # ['presidio_pii']
+```
+
+### Full Enterprise APM
+Out of the box, FinGuard supports streaming traces directly to Datadog, Splunk, Jaeger, or Langfuse metrics dashboards. 
+
+Install the observability extras:
+```bash
+pip install finguard[observability]
+```
+
+Configure your policy:
+```yaml
+audit:
+  backend: "langfuse" # Seamlessly export Span/Trace hierarchy 
+  # backend: "otel"   # For native OpenTelemetry export!
 ```
 
 See [Custom Policies](./custom_policies.md) for advanced configuration.
