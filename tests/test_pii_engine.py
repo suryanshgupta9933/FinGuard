@@ -1,5 +1,5 @@
 """
-FinGuard v0.3.0 — Native Presidio PII Engine Test Suite
+FinGuard — Native Presidio PII Engine Test Suite
 Tests all changes in the new finguard.pii module.
 
 Run: uv run pytest tests/test_pii_engine.py -v

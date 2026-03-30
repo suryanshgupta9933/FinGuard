@@ -43,7 +43,7 @@ async def test_pmla_blocking():
     async def mock_llm(p: str): return "OK"
     
     # Large amount
-    with pytest.raises(ValueError, match="PMLAScanner"):
+    with pytest.raises(ValueError, match="pmla_detection"):
         await mock_llm("Transfer 75,000 to John")
         
     # Small amount (Should pass)
@@ -101,4 +101,4 @@ async def test_latency_dict():
     assert res.component_latencies is not None
     assert len(res.component_latencies) > 0
     # Check for specific scanner keys
-    assert any("Injection" in k for k in res.component_latencies.keys())
+    assert any("injection" in k for k in res.component_latencies.keys())
