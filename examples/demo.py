@@ -1,5 +1,5 @@
 """
-FinGuard v0.3.0 — Multi-Persona Safety Demo
+FinGuard — Multi-Persona Safety Demo
 Showcases all 5 built-in policies across different financial roles.
 
 Run: uv run examples/demo.py
