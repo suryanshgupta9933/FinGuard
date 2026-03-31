@@ -33,7 +33,7 @@ def wrap_langchain_tools(guard: Any, tools: List[Any], session_id: str = None) -
                 except ToolCallViolation as e:
                     # Return a friendly string so the LangChain React agent 
                     # can self-correct instead of crashing the process!
-                    return f"Action Failed: Blocked by FinGuard security policy. Reason: {e.trace.output_scanners[0].violations[0]['reason']}"
+                    return f"Action Failed: Blocked by FinGuard security policy. Reason: {e.trace.input_scanners[0].violations[0]['reason']}"
             
             # Rebind
             safe_tool._arun = secure_arun
@@ -57,7 +57,7 @@ def wrap_langchain_tools(guard: Any, tools: List[Any], session_id: str = None) -
                     )
                     return original_run(*args, **kwargs)
                 except ToolCallViolation as e:
-                    return f"Action Failed: Blocked by FinGuard security policy. Reason: {e.trace.output_scanners[0].violations[0]['reason']}"
+                    return f"Action Failed: Blocked by FinGuard security policy. Reason: {e.trace.input_scanners[0].violations[0]['reason']}"
             
             # Rebind
             safe_tool._run = secure_run
