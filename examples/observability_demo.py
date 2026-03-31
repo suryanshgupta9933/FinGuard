@@ -8,7 +8,7 @@ we'll wire the OpenTelemetry SDK to print spans directly to the console so
 you can see the exact telemetry being exported.
 
 Usage:
-    uv run observability_demo.py
+    uv run examples/observability_demo.py
 """
 import asyncio
 import sys
