@@ -33,3 +33,7 @@ output:
     - "Mutual fund investments are subject to market risks."
     - "Past performance is not indicative of future returns."
   on_fail: block
+
+audit:
+  backend: memory
+  emit_traces: true

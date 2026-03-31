@@ -34,3 +34,7 @@ output:
     - "This is not personalized investment advice."
     - "Investments are subject to market risks."
   on_fail: block
+
+audit:
+  backend: memory
+  emit_traces: true

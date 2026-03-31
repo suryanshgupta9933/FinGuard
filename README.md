@@ -67,17 +67,6 @@ guard = FinGuard(policy="high_security")
 | `wealth_advisor` | Robo-advisors, portfolio managers (SEBI compliance) | 3 |
 | `high_security` | Fraud ops, compliance officers, internal audit tools | 3 |
 
-## [0.3.1] - 2026-03-28
-
-### Added
-- **Model Pre-fetching**: New `finguard-download` CLI command and `FinGuard.download_models()` method to pre-cache all ONNX models. This eliminates the first-run latency hit.
-- **CLI Utility**: Added `[project.scripts]` entry for easy environment setup.
-
-## [0.3.0] - 2026-03-28
-
-- Native presidio integration with model packs configuration for faster PII detection and anonymization.
-- All policies ship with `injection.threshold: 1.0` — only absolute certainty triggers a block.
-
 ---
 
 ## 🔍 What Gets Protected
@@ -111,6 +100,41 @@ pii:
 
 ---
 
+## 🕵️‍♂️ Enterprise Observability & Audit
+
+FinGuard features **GuardTrace**, a forensic-grade audit engine designed for SOC2 compliance and incident response. Every safety decision is fully reconstructable, without logging raw PII.
+
+### 1. Multi-Backend Logging
+Out-of-the-box support for:
+- **NDJSON File Logging**: Built for easy ingestion into Splunk, DataDog, and ElasticSearch.
+- **Langfuse**: Hierarchical session traces + visual violation scoring (`pip install finguard[observability]`).
+- **OpenTelemetry**: Native OTEL spans and metrics for enterprise APM (`pip install finguard[observability]`).
+
+```yaml
+# policy.yaml
+audit:
+  backend: "langfuse"       # "memory" | "file" | "langfuse" | "otel"
+  emit_traces: true
+  redact_input: true        # Logs SHA-256 fingerprint instead of raw text
+  include_metadata_keys: ["session_id", "user_id"] # Safe tracking
+```
+
+### 2. Agentic Backtracking
+If FinGuard blocks an agent's tool call or prompt, it raises a structured `FinGuardViolation` containing the exact `GuardTrace`. Your agent can catch this, inspect the violation, and **self-correct** its plan instead of crashing:
+
+```python
+from finguard.exceptions import FinGuardViolation
+
+try:
+    response = await banking_assistant("Process transfer for 1234-5678-9012-3456")
+except FinGuardViolation as e:
+    failed_scanners = [s.scanner for s in e.trace.input_scanners if s.triggered]
+    if "presidio_pii" in failed_scanners:
+        print("Self-correcting: removing PII and retrying...")
+```
+
+---
+
 ## 🧩 Architecture
 
 ```
@@ -140,33 +164,6 @@ Sample output:
   Tier 3 – High Sec   (Full)            181.0ms  149.2ms  277.3ms
 ══════════════════════════════════════════════════════════════
 ```
-
----
-
-## 📁 Project Structure
-
-```
-finguard/
-├── pii/                   # Native Presidio PII engine
-│   ├── engine.py          # FinGuardPIIEngine singleton
-│   ├── profiles.py        # Finance base + locale packs
-│   └── recognizers.py     # Custom recognizers (IFSC, VPA, Demat)
-├── validators/            # Domain-specific validators
-│   ├── financial.py       # Fast-path regex + PMLA scanner
-│   ├── compliance.py      # Disclaimer enforcement
-│   └── numerical.py       # Hallucination detection
-├── policies/              # YAML policy catalog
-│   ├── default.yaml
-│   ├── fast_lane.yaml
-│   ├── retail_banking.yaml
-│   ├── wealth_advisor.yaml
-│   └── high_security.yaml
-├── core.py                # FinGuard main class
-├── router.py              # Scanner factory + model cache
-└── config.py              # Pydantic policy models
-```
-
----
 
 ## ⚖️ License
 

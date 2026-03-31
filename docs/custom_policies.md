@@ -33,6 +33,13 @@ output:
   required_disclaimers:
     - "This is not personalized investment advice."
   on_fail: block
+
+audit:
+  backend: "memory"          # "memory" | "file" | "langfuse" | "otel"
+  emit_traces: true
+  redact_input: true         # uses SHA-256 for prompt inputs instead of raw text
+  file_path: "logs/finguard_%Y-%m-%d.ndjson"  # only if backend="file"
+  include_metadata_keys: []  # e.g., ["session_id", "user_id"]
 ```
 
 ## Finance Base (Always Active)

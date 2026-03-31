@@ -6,6 +6,7 @@ from .config import PolicyConfig
 from .pipeline import InputPipeline, OutputPipeline
 from .audit import AuditLogger, GuardTrace, ScannerTrace
 from .schema import GuardRequest, GuardResult, ValidationResult
+from .exceptions import FinGuardViolation
 from .router import get_vault
 from .utils import check_runtime_health, download_models
 
@@ -140,7 +141,7 @@ class FinGuard:
             res = await self(req, bound_llm)
 
             if not res.is_safe and res.action == "block":
-                raise ValueError(f"Blocked by FinGuard: {res.violations}")
+                raise FinGuardViolation(f"Blocked by FinGuard: {res.violations}", trace=res.trace)
 
             return res.output or ""
 
