@@ -56,6 +56,13 @@ class AuditConfig(BaseModel):
     """Future: 'langfuse' | 'otel' — reserved for v0.5 observability integrations."""
 
 
+class ToolConfig(BaseModel):
+    enabled: bool = False
+    allowed: List[str] = Field(default_factory=list)
+    blocked: List[str] = Field(default_factory=list)
+    require_approval_above_risk: int = 3
+    max_calls_per_session: int = 50
+
 class PolicyConfig(BaseModel):
     policy_id: str = "custom_policy"
     risk_level: str = "low"
@@ -64,6 +71,7 @@ class PolicyConfig(BaseModel):
     topic_boundary: Optional[TopicBoundaryConfig] = None
     output: Optional[OutputConfig] = None
     audit: Optional[AuditConfig] = None
+    tools: Optional[ToolConfig] = None
 
     @classmethod
     def load(cls, policy: str | dict) -> 'PolicyConfig':

@@ -148,6 +148,48 @@ class AuditLogger:
         )
         return result
 
+    def record_tool(self, tool_name: str, result: Any, metadata: Dict[str, Any]) -> GuardTrace:
+        """Assembles and emits a GuardTrace specifically for a tool execution."""
+        from .trace import GuardTrace, ScannerTrace
+        
+        st = ScannerTrace(
+            scanner="tool_call_guard",
+            stage="tool",
+            triggered=not result.is_safe,
+            score=1.0 if not result.is_safe else 0.0,
+            violations=[{"reason": result.block_reason}] if not result.is_safe else [],
+            latency_ms=result.latency_ms
+        )
+        
+        policy_id = getattr(self.config, "__policy_id__", "unknown")
+        policy_version = getattr(self.config, "__policy_version__", "0.0")
+        risk_tier = getattr(self.config, "__risk_tier__", 1)
+
+        allowed_keys = getattr(self.config, "include_metadata_keys", None)
+        filtered_meta = {k: v for k, v in metadata.items() if k in allowed_keys} if allowed_keys else metadata
+
+        trace = GuardTrace(
+            policy_id=policy_id,
+            policy_version=policy_version,
+            risk_tier=max(risk_tier, result.risk_tier),
+            input_hash="",
+            input_length=0,
+            input_scanners=[st],
+            is_safe=result.is_safe,
+            action=result.action,
+            block_stage="tool" if not result.is_safe else None,
+            total_latency_ms=result.latency_ms,
+            metadata=filtered_meta,
+        )
+
+        for backend in self._backends:
+            try:
+                backend.emit(trace)
+            except Exception:
+                pass
+                
+        return trace
+
     # ── In-process query helpers ───────────────────────────────────────────
 
     @property
