@@ -1,0 +1,30 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main  # Adjust this if your default branch is different
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Deploy to GitHub Pages
+        run: uv run mkdocs gh-deploy --force
