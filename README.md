@@ -67,17 +67,6 @@ guard = FinGuard(policy="high_security")
 | `wealth_advisor` | Robo-advisors, portfolio managers (SEBI compliance) | 3 |
 | `high_security` | Fraud ops, compliance officers, internal audit tools | 3 |
 
-## [0.3.1] - 2026-03-28
-
-### Added
-- **Model Pre-fetching**: New `finguard-download` CLI command and `FinGuard.download_models()` method to pre-cache all ONNX models. This eliminates the first-run latency hit.
-- **CLI Utility**: Added `[project.scripts]` entry for easy environment setup.
-
-## [0.3.0] - 2026-03-28
-
-- Native presidio integration with model packs configuration for faster PII detection and anonymization.
-- All policies ship with `injection.threshold: 1.0` — only absolute certainty triggers a block.
-
 ---
 
 ## 🔍 What Gets Protected
