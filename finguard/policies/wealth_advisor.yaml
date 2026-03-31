@@ -37,3 +37,9 @@ output:
 audit:
   backend: memory
   emit_traces: true
+
+tools:
+  enabled: true
+  allowed: ["get_ticker_price", "read_portfolio", "calculate_returns"]
+  blocked: ["execute_code", "place_trade", "write_db"]
+  max_calls_per_session: 30
