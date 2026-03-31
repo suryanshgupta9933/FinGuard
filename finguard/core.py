@@ -6,9 +6,11 @@ from .config import PolicyConfig
 from .pipeline import InputPipeline, OutputPipeline
 from .audit import AuditLogger, GuardTrace, ScannerTrace
 from .schema import GuardRequest, GuardResult, ValidationResult
-from .exceptions import FinGuardViolation
+from .exceptions import FinGuardViolation, ToolCallViolation
 from .router import get_vault
 from .utils import check_runtime_health, download_models
+from .tools.guard import ToolCallGuard
+from .tools.schema import ToolCallRequest, ToolCallResult
 
 # ── Risk tier mapping ─────────────────────────────────────────────────────────
 _RISK_TIER = {"low": 1, "medium": 2, "high": 3}
@@ -49,6 +51,7 @@ class FinGuard:
             audit_cfg.__risk_tier__ = _RISK_TIER.get(self.policy.risk_level, 1)
 
         self.audit = AuditLogger(audit_cfg)
+        self.tool_guard = ToolCallGuard(self.policy.tools)
 
     # ── Main execution entry point ────────────────────────────────────────────
 
@@ -126,6 +129,23 @@ class FinGuard:
     def violations(self) -> List[GuardTrace]:
         """All traces where a block or violation occurred."""
         return self.audit.get_violations()
+
+    # ── Tool Guarding API ─────────────────────────────────────────────────────
+
+    async def guard_tool_call(self, tool_name: str, arguments: Dict[str, Any] = None, **kwargs) -> ToolCallResult:
+        """
+        Intercepts an agent tool execution and verifies it against the policy.
+        Raises ToolCallViolation if the tool is blocked or rate-limited.
+        """
+        req = ToolCallRequest(tool_name=tool_name, arguments=arguments or {}, **kwargs)
+        res = self.tool_guard.evaluate(req)
+        
+        trace = self.audit.record_tool(tool_name, res, kwargs)
+        
+        if not res.is_safe:
+            raise ToolCallViolation(f"Blocked Tool Call '{tool_name}': {res.block_reason}", trace=trace)
+            
+        return res
 
     # ── Decorator ─────────────────────────────────────────────────────────────
 

@@ -1,0 +1,63 @@
+site_name: FinGuard
+site_description: "The Open-Source LLM Firewall for Finance"
+repo_url: https://github.com/FinGuard/finguard
+repo_name: FinGuard/finguard
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.tabs.link
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Fundamentals:
+    - Installation: setup.md
+  - Components:
+    - Protection Policies: components/policies.md
+    - PII Anonymization: components/pii.md
+    - Agentic Tool Guards: components/tool_guards.md
+    - Enterprise Observability: components/observability.md
+  - Cookbooks:
+    - Secure LangChain Agent: cookbooks/langchain_agent.md
+    - FastAPI API Gateway: cookbooks/fastapi_gateway.md

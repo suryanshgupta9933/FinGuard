@@ -38,3 +38,9 @@ output:
 audit:
   backend: memory
   emit_traces: true
+
+tools:
+  enabled: true
+  allowed: ["read_internal_db", "check_compliance"]
+  blocked: ["search_web", "execute_code", "send_email", "write_db", "delete_record"]
+  max_calls_per_session: 5

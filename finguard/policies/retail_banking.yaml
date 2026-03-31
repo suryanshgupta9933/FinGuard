@@ -23,3 +23,9 @@ output:
 audit:
   backend: memory
   emit_traces: true
+
+tools:
+  enabled: true
+  allowed: []
+  blocked: ["execute_code", "write_db", "delete_record"]
+  max_calls_per_session: 20

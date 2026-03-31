@@ -44,9 +44,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# extra md for docs
-*.MD
-
 # Test ENV
 test_env/
 

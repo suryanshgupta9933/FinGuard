@@ -23,3 +23,10 @@ class FinGuardViolation(FinGuardException):
     def __init__(self, message: str, trace: Optional[GuardTrace] = None):
         super().__init__(message)
         self.trace = trace
+
+class ToolCallViolation(FinGuardViolation):
+    """
+    Raised when an agent attempts to execute a tool that violates the active policy
+    (e.g., executing a blocked tool or exceeding the max_calls_per_session).
+    """
+    pass

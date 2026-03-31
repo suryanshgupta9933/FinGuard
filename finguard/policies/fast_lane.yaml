@@ -24,3 +24,9 @@ output:
 audit:
   backend: memory
   emit_traces: true
+
+tools:
+  enabled: true
+  allowed: ["search_faq", "check_balance"] # Strict allowlist for fast responses
+  blocked: []
+  max_calls_per_session: 10
