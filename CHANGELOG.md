@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2026-03-31
+
+### Added
+- **Agentic Tool Guards** (`ToolCallGuard`): A declarative firewall for agent tool executions, preventing infinite loops and dangerous downstream actions.
+- **Session Tracker** (`SessionTracker`): In-memory TTL tracking for `max_calls_per_session` rate-limiting to prevent rogue agents from draining budgets or blowing up downstream APIs.
+- **Frictionless Adapters**: 
+  - `@wrap_tool`: Universal decorator for tracking pure Python tool execution.
+  - `wrap_langchain_tools`: Dynamically secures existing LangChain `BaseTool` lists.
+- **`ToolCallViolation` Exception**: Child of `FinGuardViolation` explicitly typed for tool interception, allowing the agent orchestration loop to safely self-correct instead of crashing.
+
 ## [0.4.1] - 2026-03-31
 
 ### Added
