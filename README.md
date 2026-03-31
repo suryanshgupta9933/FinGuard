@@ -10,7 +10,7 @@
 
   *Stop Prompt Injections, Prevent Agentic Infinite Loops, and Anonymize PII natively on your CPU in **<15ms**.*
 
-  [**Read the Docs**](https://finguard.dev) • [**Interactive Demo**](#-try-it-now) • [**Architecture**](#-architecture-the-zero-trust-layer)
+  [**Read the Docs**](https://suryanshgupta9933.github.io/FinGuard) • [**Interactive Demo**](#-try-it-now) • [**Architecture**](#-architecture-the-zero-trust-layer)
 </div>
 
 ---
@@ -102,4 +102,4 @@ finguard download-models
 
 ---
 
-[**Explore the Interactive Google Colab**](https://colab.research.google.com/drive/1-gtumX-iv2qUeAwr27ULvwI-_WEGgFMd) | [**Full Technical Documentation**](https://finguard.dev)
+[**Explore the Interactive Google Colab**](https://colab.research.google.com/drive/1-gtumX-iv2qUeAwr27ULvwI-_WEGgFMd) | [**Full Technical Documentation**](https://suryanshgupta9933.github.io/FinGuard)
